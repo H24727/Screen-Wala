@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1">
+<title>ScreenWala — Admin</title>
+<meta name="robots" content="noindex, nofollow">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' https://fonts.googleapis.com 'unsafe-inline'; font-src https://fonts.gstatic.com; img-src 'self' data:; connect-src 'self'; base-uri 'self'; object-src 'none';">
+<meta http-equiv="X-Content-Type-Options" content="nosniff">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600&family=IBM+Plex+Mono:wght@500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#0b0b0d; --bg-2:#151517; --bg-3:#1d1d20;
+    --red:#e4222a; --gold:#d8a94c; --muted:#9d9ba3; --line:rgba(255,255,255,0.08);
+    --ok:#3ec27a;
+  }
+  *{box-sizing:border-box;}
+  body{margin:0;}
+  html,body{ background:var(--bg); color:#f0eee9; font-family:'Inter',sans-serif; min-height:100vh; }
+  .mono{font-family:'IBM Plex Mono',monospace;}
+  h1,h2,.display{font-family:'Space Grotesk',sans-serif;}
+
+  /* ---------- GATE ---------- */
+  #gate{ min-height:100vh; display:flex; align-items:center; justify-content:center; padding:20px; }
+  .gate-card{ width:100%; max-width:360px; background:var(--bg-2); border:1px solid var(--line); border-radius:18px; padding:30px 26px; }
+  .gate-eyebrow{ font-size:11px; letter-spacing:0.22em; text-transform:uppercase; color:var(--red); margin-bottom:8px; font-weight:600; }
+  .gate-title{ font-size:22px; font-weight:700; margin:0 0 6px; }
+  .gate-sub{ font-size:13px; color:var(--muted); margin:0 0 22px; line-height:1.5; }
+  .field{ margin-bottom:14px; }
+  .field label{ display:block; font-size:12px; color:var(--muted); margin-bottom:6px; }
+  .field input{ width:100%; background:var(--bg-3); border:1px solid var(--line); border-radius:10px; padding:13px 14px; color:#f0eee9; font-size:14.5px; outline:none; }
+  .field input:focus{ border-color:var(--red); }
+  .gate-error{ color:#ff6b70; font-size:12px; margin-bottom:12px; min-height:16px; }
+  .btn{ width:100%; border:none; border-radius:12px; padding:14px; font-size:14.5px; font-weight:600; cursor:pointer; }
+  .btn-primary{ background:linear-gradient(135deg,var(--red),#b8161d); color:#fff; }
+  .btn-ghost{ background:transparent; border:1px solid var(--line); color:#f0eee9; margin-top:10px; }
+  .hidden{ display:none !important; }
+
+  /* ---------- DASHBOARD ---------- */
+  #dash{ max-width:720px; margin:0 auto; padding:24px 18px 60px; }
+  .top{ display:flex; align-items:center; justify-content:space-between; margin-bottom:24px; }
+  .logo{ display:flex; align-items:center; gap:9px; font-weight:700; font-size:17px; }
+  .logo .dot{ width:9px; height:9px; border-radius:50%; background:var(--red); box-shadow:0 0 10px var(--red); }
+  .lock-btn{ background:var(--bg-3); border:1px solid var(--line); color:var(--muted); border-radius:8px; padding:8px 12px; font-size:12px; cursor:pointer; }
+
+  .stat-grid{ display:grid; grid-template-columns:1fr 1fr; gap:12px; margin-bottom:14px; }
+  .stat-card{ background:var(--bg-2); border:1px solid var(--line); border-radius:14px; padding:18px; }
+  .stat-card.wide{ grid-column:1 / -1; }
+  .stat-label{ font-size:11px; letter-spacing:0.1em; text-transform:uppercase; color:var(--muted); margin-bottom:8px; }
+  .stat-value{ font-family:'IBM Plex Mono',monospace; font-weight:700; font-size:26px; }
+  .stat-value.profit{ color:var(--ok); }
+  .stat-value.revenue{ color:var(--gold); }
+
+  .section-title{ font-size:15px; font-weight:700; margin:26px 0 12px; }
+  .order-row{ background:var(--bg-2); border:1px solid var(--line); border-radius:12px; padding:14px 16px; margin-bottom:10px; }
+  .order-top{ display:flex; justify-content:space-between; align-items:baseline; margin-bottom:6px; }
+  .order-num{ font-family:'IBM Plex Mono',monospace; font-weight:700; color:var(--gold); font-size:13.5px; }
+  .order-profit{ font-family:'IBM Plex Mono',monospace; color:var(--ok); font-size:13.5px; font-weight:600; }
+  .order-plan{ font-size:13.5px; font-weight:600; margin-bottom:2px; }
+  .order-meta{ font-size:11.5px; color:var(--muted); line-height:1.6; }
+  .empty-state{ text-align:center; color:var(--muted); font-size:13px; padding:40px 20px; }
+</style>
+</head>
+<body>
+
+  <div id="gate">
+    <div class="gate-card">
+      <div class="gate-eyebrow" id="gateEyebrow">Admin Access</div>
+      <h1 class="gate-title">ScreenWala Dashboard</h1>
+      <p class="gate-sub" id="gateSub">Loading…</p>
+      <div class="field">
+        <label for="passInput">Password</label>
+        <input type="password" id="passInput" placeholder="••••••" autocomplete="off">
+      </div>
+      <div class="field hidden" id="confirmField">
+        <label for="passConfirm">Confirm Password</label>
+        <input type="password" id="passConfirm" placeholder="••••••" autocomplete="off">
+      </div>
+      <div class="gate-error" id="gateError"></div>
+      <button class="btn btn-primary" id="gateBtn" disabled>Enter</button>
+    </div>
+  </div>
+
+  <div id="dash" class="hidden">
+    <div class="top">
+      <div class="logo"><span class="dot"></span> ScreenWala Admin</div>
+      <button class="lock-btn" id="lockBtn">Lock</button>
+    </div>
+
+    <div class="stat-grid">
+      <div class="stat-card"><div class="stat-label">Visitors</div><div class="stat-value" id="stVisitors">—</div></div>
+      <div class="stat-card"><div class="stat-label">Screens Sold</div><div class="stat-value" id="stOrders">—</div></div>
+      <div class="stat-card"><div class="stat-label">Total Revenue</div><div class="stat-value revenue" id="stRevenue">—</div></div>
+      <div class="stat-card"><div class="stat-label">Total Cost</div><div class="stat-value" id="stCost">—</div></div>
+      <div class="stat-card wide"><div class="stat-label">Total Profit</div><div class="stat-value profit" id="stProfit">—</div></div>
+    </div>
+
+    <div class="section-title">Recent Orders</div>
+    <div id="ordersList"></div>
+  </div>
+
+<script>
+(function(){
+  const $ = s => document.querySelector(s);
+  let isSetupMode = false;
+  let currentPasscode = null;
+
+  const gateBtn = $('#gateBtn'), gateSub = $('#gateSub'), gateError = $('#gateError');
+  const passInput = $('#passInput'), passConfirm = $('#passConfirm'), confirmField = $('#confirmField');
+
+  async function initGate(){
+    try{
+      const res = await fetch('/api/auth');
+      const data = await res.json();
+      isSetupMode = !data.isSetup;
+    }catch(e){
+      gateError.textContent = 'Could not reach the server. Try again.';
+    }
+    gateBtn.disabled = false;
+    if(isSetupMode){
+      $('#gateEyebrow').textContent = 'First-time Setup';
+      gateSub.textContent = 'Create a password to protect this dashboard — only you will know it.';
+      confirmField.classList.remove('hidden');
+      gateBtn.textContent = 'Create & Enter';
+    } else {
+      gateSub.textContent = 'Enter your password to view your dashboard.';
+      confirmField.classList.add('hidden');
+      gateBtn.textContent = 'Enter';
+    }
+  }
+
+  async function handleGate(){
+    const val = passInput.value.trim();
+    gateError.textContent = '';
+    if(!val || val.length < 4){ gateError.textContent = 'Password must be at least 4 characters.'; return; }
+
+    gateBtn.disabled = true; gateBtn.textContent = '...';
+    try{
+      if(isSetupMode){
+        if(val !== passConfirm.value.trim()){
+          gateError.textContent = "Passwords don't match.";
+          gateBtn.disabled=false; gateBtn.textContent='Create & Enter'; return;
+        }
+        const res = await fetch('/api/auth', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({action:'setup', passcode:val}) });
+        const data = await res.json();
+        if(!data.ok){ gateError.textContent = data.error || 'Setup failed.'; gateBtn.disabled=false; gateBtn.textContent='Create & Enter'; return; }
+      } else {
+        const res = await fetch('/api/auth', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({action:'verify', passcode:val}) });
+        const data = await res.json();
+        if(!data.ok){ gateError.textContent = 'Wrong password.'; gateBtn.disabled=false; gateBtn.textContent='Enter'; passInput.value=''; return; }
+      }
+      currentPasscode = val;
+      await enterDashboard();
+    }catch(e){
+      gateError.textContent = 'Something went wrong. Try again.';
+      gateBtn.disabled=false; gateBtn.textContent = isSetupMode ? 'Create & Enter' : 'Enter';
+    }
+  }
+
+  async function enterDashboard(){
+    $('#gate').classList.add('hidden');
+    $('#dash').classList.remove('hidden');
+    try{
+      const res = await fetch('/api/stats', { headers: { 'x-passcode': currentPasscode } });
+      if(res.status === 401){ toast('Session expired'); doLock(); return; }
+      const data = await res.json();
+      renderStats(data);
+    }catch(e){
+      $('#ordersList').innerHTML = '<div class="empty-state">Could not load data. Check your connection and reload.</div>';
+    }
+  }
+
+  function money(n){ return 'Rs ' + Number(n||0).toLocaleString(); }
+
+  function renderStats(data){
+    $('#stVisitors').textContent = (data.visitors||0).toLocaleString();
+    $('#stOrders').textContent = (data.orderCount||0).toLocaleString();
+    $('#stRevenue').textContent = money(data.totalRevenue);
+    $('#stCost').textContent = money(data.totalCost);
+    $('#stProfit').textContent = money(data.totalProfit);
+
+    const list = $('#ordersList');
+    if(!data.orders || !data.orders.length){
+      list.innerHTML = '<div class="empty-state">No orders yet — they will show up here as customers check out.</div>';
+      return;
+    }
+    list.innerHTML = data.orders.map(o=>`
+      <div class="order-row">
+        <div class="order-top">
+          <span class="order-num">${esc(o.orderNumber)}</span>
+          <span class="order-profit">+${money(o.profit)}</span>
+        </div>
+        <div class="order-plan">${esc(o.planName)} — ${esc(o.duration)} — ${money(o.price)}</div>
+        <div class="order-meta">${esc(o.name)} · ${esc(o.phone)} · ${esc(o.city)}<br>${esc(o.payMethod)} · Txn: ${esc(o.txnId)} · ${new Date(o.createdAt).toLocaleString()}</div>
+      </div>
+    `).join('');
+  }
+
+  function esc(s){ return String(s==null?'':s).replace(/[&<>"']/g, c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
+  function toast(msg){ gateError.textContent = msg; }
+
+  function doLock(){
+    currentPasscode = null;
+    passInput.value=''; passConfirm.value='';
+    $('#dash').classList.add('hidden');
+    $('#gate').classList.remove('hidden');
+    initGate();
+  }
+
+  gateBtn.addEventListener('click', handleGate);
+  passInput.addEventListener('keydown', e=>{ if(e.key==='Enter') handleGate(); });
+  passConfirm.addEventListener('keydown', e=>{ if(e.key==='Enter') handleGate(); });
+  $('#lockBtn').addEventListener('click', doLock);
+
+  initGate();
+})();
+</script>
+</body>
+</html>
