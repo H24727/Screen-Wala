@@ -1,42 +1,3 @@
-========================================================
-SCREENWALA â€” GITHUB + NETLIFY SETUP GUIDE
-========================================================
-
-WHY: Netlify's "Deploy manually" (drag-and-drop) doesn't run
-"npm install", so the backend package (@netlify/blobs) never
-loads and the admin dashboard fails. Connecting through GitHub
-fixes this permanently â€” Netlify auto-installs everything.
-
---------------------------------------------------------
-STEP 1 â€” Create GitHub account & repository
---------------------------------------------------------
-1. Go to github.com, sign up (free) if you don't have an account
-2. Click "New repository"
-3. Name it: screenwala-site
-4. Set it to Public
-5. Click "Create repository"
-
---------------------------------------------------------
-STEP 2 â€” Upload the two big files
---------------------------------------------------------
-1. On the repo page: "Add file" -> "Upload files"
-2. Select BOTH index.html and admin.html from your downloads
-3. Click "Commit changes"
-
---------------------------------------------------------
-STEP 3 â€” Create the 4 backend files
---------------------------------------------------------
-For each file below:
-1. Click "Add file" -> "Create new file"
-2. In the "Name your file..." box, type the FULL PATH shown
-   (GitHub will auto-create the folders for you)
-3. Copy-paste the content into the big text box below it
-4. Scroll down, click "Commit changes"
-5. Go back to the repo home and repeat for the next file
-
---------------------------------------------------------
-FILE PATH: netlify/functions/auth.mts
---------------------------------------------------------
 import type { Context } from "@netlify/functions";
 import { getStore } from "@netlify/blobs";
 
@@ -76,9 +37,6 @@ export default async (req: Request, context: Context) => {
   return new Response("Bad request", { status: 400 });
 };
 
---------------------------------------------------------
-FILE PATH: netlify/functions/track.mts
---------------------------------------------------------
 import type { Context } from "@netlify/functions";
 import { getStore } from "@netlify/blobs";
 
@@ -91,10 +49,6 @@ export default async (req: Request, context: Context) => {
   await store.set("visitors", String(n + 1));
   return new Response(JSON.stringify({ ok: true }), { headers: { "Content-Type": "application/json" } });
 };
-
---------------------------------------------------------
-FILE PATH: netlify/functions/order.mts
---------------------------------------------------------
 import type { Context } from "@netlify/functions";
 import { getStore } from "@netlify/blobs";
 
@@ -152,9 +106,6 @@ export default async (req: Request, context: Context) => {
   }
 };
 
---------------------------------------------------------
-FILE PATH: netlify/functions/stats.mts
---------------------------------------------------------
 import type { Context } from "@netlify/functions";
 import { getStore } from "@netlify/blobs";
 
@@ -189,9 +140,6 @@ export default async (req: Request, context: Context) => {
   }), { headers: { "Content-Type": "application/json" } });
 };
 
---------------------------------------------------------
-FILE PATH: netlify.toml
---------------------------------------------------------
 [build]
   publish = "."
   functions = "netlify/functions"
@@ -203,9 +151,7 @@ FILE PATH: netlify.toml
   to = "/.netlify/functions/:splat"
   status = 200
 
---------------------------------------------------------
-FILE PATH: package.json
---------------------------------------------------------
+
 {
   "name": "screenwala",
   "version": "1.0.0",
@@ -214,29 +160,3 @@ FILE PATH: package.json
     "@netlify/blobs": "^8.1.0"
   }
 }
-
---------------------------------------------------------
-STEP 4 â€” Connect Netlify to this GitHub repo
---------------------------------------------------------
-1. Go to app.netlify.com
-2. Click "Add new site" -> "Import an existing project"
-3. Choose "Deploy with GitHub"
-4. Authorize Netlify to access GitHub if asked
-5. Select the "screenwala-site" repository
-6. Leave all build settings as default (blank build command is fine)
-7. Click "Deploy"
-8. Wait ~1-2 minutes for the first deploy to finish
-
---------------------------------------------------------
-STEP 5 â€” Set your admin password
---------------------------------------------------------
-1. Open yoursite.netlify.app/admin.html
-2. This time it should work â€” set your password there
-
---------------------------------------------------------
-FROM NOW ON: any future updates
---------------------------------------------------------
-Just re-upload the changed file(s) on GitHub (Add file ->
-Upload files, or edit the file directly on GitHub) and
-Netlify will automatically redeploy within a minute.
-No more manual drag-and-drop needed ever again.
