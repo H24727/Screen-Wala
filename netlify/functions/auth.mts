@@ -144,8 +144,8 @@ export default async (req: Request, context: Context) => {
   publish = "."
   functions = "netlify/functions"
 
-# Without this, calls to /api/... never reach the functions folder â€”
-# Netlify serves functions at /.netlify/functions/<name> by default.
+ Without this, calls to /api/... never reach the functions folder â€”
+ Netlify serves functions at /.netlify/functions/<name> by default.
 [[redirects]]
   from = "/api/*"
   to = "/.netlify/functions/:splat"
